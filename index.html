@@ -632,6 +632,8 @@ label + input {
 
 <div class="error-msg" id="error-telefono"></div>
 
+<div id="telefono-pdf" style="display:none;"></div>
+
     <label id="label-correo" for="correoelectrónico">Correo electrónico:</label>
 
 <input
@@ -913,11 +915,6 @@ inputCorreo.addEventListener("blur", () => {
   });
 
 // ------------------- FIN BLOQUE TELEFONO -------------------
-
-function fijarPrefijoActual() {
-  if (!iti) return;
-  if (!inputTelefono.value) inputTelefono.value = "+";
-}
 
 const traduccionesPaises = {
   es: { Mexico: "México", France: "Francia" },
@@ -1243,6 +1240,18 @@ function prepararCamposParaPDF() {
   });
 }
 
+const telefonoPDF = document.querySelector("#telefono-pdf");
+
+// número internacional limpio
+telefonoPDF.textContent = inputTelefono.value;
+
+// ocultar input real
+document.querySelector(".iti").style.display = "none";
+
+// mostrar texto limpio
+telefonoPDF.style.display = "block";
+
+
 /* ============================================================
    ENVÍO REAL
 ============================================================ */
@@ -1303,6 +1312,11 @@ function restaurarCamposDespuesPDF() {
     div.remove();
   });
 }
+
+setTimeout(() => {
+  document.querySelector(".iti").style.display = "";
+  telefonoPDF.style.display = "none";
+}, 1000);
 
 /* =====================================
    VALIDACIÓN CON TU MISMA ALERTA
@@ -1426,10 +1440,10 @@ if (!ok) {
 
       const terminadoMsg =
         idiomaActual === "es"
-          ? "Encuesta terminada correctamente. ¡Gracias por su tiempo!"
+          ? "Encuesta terminada correctamente. ¡Gracias por su tiempo! Ya puede cerrar esta ventana."
           : idiomaActual === "en"
-          ? "Survey completed successfully. Thank you!"
-          : "Sondage terminé avec succès. Merci !";
+          ? "Survey completed successfully. Thank you! You can now close this window."
+          : "Sondage terminé avec succès. Merci ! Vous pouvez maintenant fermer cette fenêtre.";
 
       setOverlayMensaje(terminadoMsg);
       setTimeout(ocultarOverlay, 1800);
