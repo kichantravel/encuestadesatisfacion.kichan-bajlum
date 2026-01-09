@@ -608,7 +608,16 @@ button {
     <div class="error-msg" id="error-lugar"></div>
 
     <label id="label-fecha" for="fecha">Fecha:</label>
-    <input type="text" id="fecha" name="fecha">
+    
+    <input
+  type="text"
+  id="fecha"
+  name="fecha"
+  autocomplete="off"
+  readonly
+  inputmode="none"
+>
+
     <div class="error-msg" id="error-fecha"></div>
 
     <label id="label-tour" for="tour">Tour:</label>
