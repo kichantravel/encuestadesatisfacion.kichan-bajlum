@@ -1273,6 +1273,13 @@ if (!campo.value.trim()) {
     }
   });
 
+  if (primerError) {
+    primerError.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+    if (primerError.focus) primerError.focus();
+  }
   return ok;
 }
 
@@ -1360,21 +1367,21 @@ function mostrarAlerta(callback) {
    ENVÍO REAL
 ============================================================ */
 async function generarYEnviarPDF() {
+
   mostrarOverlay(mensajesEnvio[idiomaActual].enviando);
 
-    prepararCamposParaPDF();
+  prepararCamposParaPDF();
 
-    const telefonoPDF = copia.querySelector("#telefono-pdf");
+  const telefonoPDF = copia.querySelector("#telefono-pdf");
+  // número internacional correcto (+52…)
+  if (telefonoPDF) {
+    telefonoPDF.textContent = iti.getNumber();
+    telefonoPDF.style.display = "block";
+  }
 
-// número internacional correcto (+52…)
-telefonoPDF.textContent = iti.getNumber();
-
-// mostrar texto plano en PDF
-telefonoPDF.style.display = "block";
-
-if (!copia) {
-  throw new Error("La copia del formulario no se generó");
-}
+  if (!copia || copia.innerText.trim() === "") {
+    throw new Error("El PDF está vacío");
+  }
 
   try {
 const pdf = await html2pdf()
