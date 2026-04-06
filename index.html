@@ -1312,47 +1312,48 @@ function mostrarAlerta(callback) {
     callback(false);
   };
 }
-
-function prepararCamposParaPDF() {
+  function prepararCamposParaPDF() {
 
   const original = document.getElementById("encuestaForm");
 
-// ✅ CLONAR UNA SOLA VEZ
+  // 🔥 eliminar copia anterior si existe
+  if (copia && copia.parentNode) {
+    copia.parentNode.removeChild(copia);
+  }
+
   copia = original.cloneNode(true);
 
   copia.style.display = "block";
-  copia.style.position = "absolute";
-  copia.style.left = "-9999px";
+  copia.style.position = "fixed";
+  copia.style.left = "0";
+  copia.style.top = "0";
+  copia.style.zIndex = "-1";
+  copia.style.width = "800px";
+  copia.style.background = "#fff";
 
   document.body.appendChild(copia);
 
-  const campos = copia.querySelectorAll("input, textarea");
+  // 🔥 convertir textarea a texto plano
+  copia.querySelectorAll("textarea").forEach(campo => {
+    const div = document.createElement("div");
+    div.className = "pdf-campo";
+    div.textContent = campo.value || " ";
 
-  campos.forEach(campo => {
-
-    if (campo.tagName.toLowerCase() === "textarea") {
-
-      const div = document.createElement("div");
-      div.className = "pdf-campo";
-      div.textContent = campo.value || " ";
-
-      campo.parentNode.insertBefore(div, campo.nextSibling);
-      campo.style.display = "none";
-    }
-
-    if (campo.type !== "button") {
-      campo.setAttribute("value", campo.value);
-    }
-
+    campo.parentNode.insertBefore(div, campo);
+    campo.remove();
   });
 
-  // TELÉFONO
+  // 🔥 valores de inputs
+  copia.querySelectorAll("input").forEach(input => {
+    input.setAttribute("value", input.value);
+  });
+
+  // 🔥 teléfono correcto
   const telefonoPDF = copia.querySelector("#telefono-pdf");
   if (telefonoPDF) {
     telefonoPDF.textContent = iti.getNumber();
     telefonoPDF.style.display = "block";
   }
-
 }
 
 /* ============================================================
@@ -1363,13 +1364,10 @@ async function generarYEnviarPDF() {
 
     prepararCamposParaPDF();
 
-    const telefonoPDF = document.getElementById("telefono-pdf");
+    const telefonoPDF = copia.querySelector("#telefono-pdf");
 
 // número internacional correcto (+52…)
-telefonoPDF.textContent = iti.getNumber();
-
-// ocultar input real
-document.querySelector(".iti").style.display = "none";
+telefonoPDF.textContent = iti.getNumber
 
 // mostrar texto plano en PDF
 telefonoPDF.style.display = "block";
@@ -1432,30 +1430,26 @@ await fetch("https://encuestadesatisfacionkichan-bajlum.hipolitomorales-1234.wor
 
 function restaurarCamposDespuesPDF() {
 
-  document.querySelectorAll("input, textarea").forEach(el => {
-    el.removeAttribute("value");
+  if (copia && copia.parentNode) {
+    copia.parentNode.removeChild(copia);
+  }
+
+  copia = null;
+
+  // 🔥 limpiar campos PDF creados
+  document.querySelectorAll(".pdf-campo").forEach(el => el.remove());
+
+  // 🔥 restaurar textareas
+  document.querySelectorAll("textarea").forEach(el => {
+    el.style.display = "";
   });
 
-  document.body.removeChild(copia);
+  // 🔥 asegurar teléfono visible
+  const itiBox = document.querySelector(".iti");
+  if (itiBox) itiBox.style.display = "";
 
-  const altInput = document.querySelector(".flatpickr-alt-input");
-if (altInput) altInput.style.display = "";
-
-  // 🔥 volver a mostrar teléfono
-  document.querySelector(".iti").style.display = "";
-  document.getElementById("telefono-pdf").style.display = "none";
-
-  // 🔥 volver a mostrar fecha correcta
-  const alt = document.querySelector(".flatpickr-alt-input");
-  if (alt) alt.style.display = "";
-
-  // 🔥 eliminar divs PDF creados
-document.querySelectorAll(".pdf-campo").forEach(el => el.remove());
-
-// 🔥 volver a mostrar textareas
-document.querySelectorAll("textarea").forEach(el => {
-  el.style.display = "";
- });
+  const telefonoPDF = document.getElementById("telefono-pdf");
+  if (telefonoPDF) telefonoPDF.style.display = "none";
 }
 
 /* =====================================
@@ -1573,7 +1567,7 @@ if (!ok) {
 
   // 🔥 3. TODO OK → CONFIRMACIÓN
   mostrarAlerta(async ok => {
-    if (!ok) return;
+  if (!ok) return;
 
     try {
       await generarYEnviarPDF();
