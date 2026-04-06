@@ -1209,6 +1209,7 @@ function validarCampos() {
   }
   const t = traducciones[idiomaActual];
   let ok = true;
+  let primerError = null; // 🔥 Declaración clave para scroll y validación
 
   // CAMPOS DE TEXTO
   const camposTexto = ["nombre", "lugar", "fecha", "tour"];
